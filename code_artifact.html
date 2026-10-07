@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《鳴潮》共鳴者檔案：達妮婭 (Denia)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        fusion: {
+                            gold: '#fbbf24',
+                            crimson: '#ef4444',
+                            dark: '#0a060a',
+                            stagecraft: '#f59e0b',
+                            breakdown: '#dc2626'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans TC', 'sans-serif'],
+                        tech: ['Orbitron', 'sans-serif']
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'spin-slow': 'spin 12s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #080509;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(18, 12, 20, 0.8);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Form themes */
+        .form-stagecraft .text-theme-primary { color: #f59e0b; }
+        .form-stagecraft .border-theme-primary { border-color: #f59e0b; }
+        .form-stagecraft .bg-theme-primary { background-color: #f59e0b; }
+        .form-stagecraft .glow-theme { filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.5)); }
+
+        .form-breakdown .text-theme-primary { color: #ef4444; }
+        .form-breakdown .border-theme-primary { border-color: #ef4444; }
+        .form-breakdown .bg-theme-primary { background-color: #ef4444; }
+        .form-breakdown .glow-theme { filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.8)); }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(239, 68, 68, 0.4);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="form-stagecraft transition-colors duration-700 font-sans selection:bg-red-500 selection:text-white">
+
+    <canvas id="particleCanvas" class="fixed inset-0 pointer-events-none z-0 opacity-70"></canvas>
+
+    <!-- Navigation Header -->
+    <nav class="sticky top-0 z-50 glass-panel border-b border-white/10 px-4 lg:px-8 py-3 transition-all duration-300">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-red-600 flex items-center justify-center font-tech font-extrabold text-black text-xl shadow-lg shadow-red-900/40">
+                    D
+                </div>
+                <div>
+                    <span class="font-tech text-xl font-black tracking-wider text-white">DENIA</span>
+                    <span class="text-[10px] text-amber-400/90 block -mt-1 tracking-widest font-tech">WUTHERING WAVES 3.3</span>
+                </div>
+            </div>
+
+            <div class="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-300">
+                <a href="#hero" class="hover:text-amber-400 transition-colors">概覽</a>
+                <a href="#profile" class="hover:text-amber-400 transition-colors">檔案</a>
+                <a href="#skills" class="hover:text-amber-400 transition-colors">雙模態機制</a>
+                <a href="#build" class="hover:text-amber-400 transition-colors">裝備聲骸</a>
+                <a href="#sequences" class="hover:text-amber-400 transition-colors">共鳴鏈</a>
+                <a href="#teams" class="hover:text-amber-400 transition-colors">配隊陣容</a>
+            </div>
+
+            <!-- Mode Switcher -->
+            <div class="flex items-center space-x-3">
+                <button id="formToggleBtn" onclick="toggleForm()" class="relative flex items-center bg-black/70 border border-amber-500/50 rounded-full p-1 w-40 cursor-pointer hover:border-amber-400 transition-all shadow-inner">
+                    <span id="toggleSlider" class="absolute left-1 w-18 h-7 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full transition-transform duration-500 ease-out shadow-md"></span>
+                    <span id="btnTextStage" class="relative z-10 text-xs font-bold w-1/2 text-center text-black transition-colors">演劇 (聚爆)</span>
+                    <span id="btnTextBreak" class="relative z-10 text-xs font-bold w-1/2 text-center text-slate-400 transition-colors">瓦解 (集諧)</span>
+                </button>
+
+                <button onclick="toggleMobileMenu()" class="md:hidden text-slate-300 hover:text-white p-2">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="mobileMenu" class="hidden md:hidden pt-4 pb-2 px-2 flex flex-col space-y-2 border-t border-white/10 mt-3 text-sm">
+            <a href="#hero" onclick="toggleMobileMenu()" class="p-2 rounded hover:bg-white/5">概覽</a>
+            <a href="#profile" onclick="toggleMobileMenu()" class="p-2 rounded hover:bg-white/5">檔案</a>
+            <a href="#skills" onclick="toggleMobileMenu()" class="p-2 rounded hover:bg-white/5">雙模態機制</a>
+            <a href="#build" onclick="toggleMobileMenu()" class="p-2 rounded hover:bg-white/5">裝備聲骸</a>
+            <a href="#sequences" onclick="toggleMobileMenu()" class="p-2 rounded hover:bg-white/5">共鳴鏈</a>
+            <a href="#teams" onclick="toggleMobileMenu()" class="p-2 rounded hover:bg-white/5">配隊陣容</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative min-h-[92vh] flex items-center justify-center pt-8 pb-16 px-4 overflow-hidden">
+        <div id="heroGlow" class="absolute w-[650px] h-[650px] rounded-full bg-amber-500/15 blur-[140px] pointer-events-none transition-all duration-700"></div>
+
+        <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+            <!-- Left Info Panel -->
+            <div class="lg:col-span-6 space-y-6 text-center lg:text-left">
+                <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-tech tracking-wider">
+                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span>STARTORCH ACADEMY · DEPARTMENT OF VOIDMATTERS</span>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="flex items-center justify-center lg:justify-start space-x-2">
+                        <div class="flex text-amber-400 text-lg space-x-1">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <span class="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30 font-bold">熱熔 (Fusion)</span>
+                        <span class="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">先天型共鳴者</span>
+                    </div>
+                    <h1 class="text-5xl sm:text-7xl font-black font-tech tracking-tight text-white drop-shadow-lg">
+                        達妮婭 <span class="text-2xl sm:text-3xl font-normal text-slate-400 block sm:inline font-sans">DENIA</span>
+                    </h1>
+                </div>
+
+                <p id="sloganText" class="text-base sm:text-lg text-slate-300 font-light border-l-2 border-amber-500 pl-4 py-2 italic bg-white/5 rounded-r">
+                    「星炬學院虛質科學部學生。終日懶散摸魚打瞌睡，卻能精準操控虛質與熱熔的聚爆天才。」
+                </p>
+
+                <!-- Attribute Tags -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+                    <div class="glass-panel p-3 rounded-xl border border-white/5">
+                        <div class="text-xs text-slate-400">武器類型</div>
+                        <div class="text-sm font-bold text-amber-300 flex items-center space-x-1.5 mt-1">
+                            <i class="fa-solid fa-circle-notch animate-spin-slow text-amber-400"></i>
+                            <span>音感儀 (Rectifier)</span>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-3 rounded-xl border border-white/5">
+                        <div class="text-xs text-slate-400">戰鬥定位</div>
+                        <div class="text-sm font-bold text-red-400 flex items-center space-x-1.5 mt-1">
+                            <i class="fa-solid fa-fire-flame-curved"></i>
+                            <span>熱熔聚爆 / 集諧副C</span>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-3 rounded-xl border border-white/5 col-span-2 sm:col-span-1">
+                        <div class="text-xs text-slate-400">當前作戰模態</div>
+                        <div id="heroFormBadge" class="text-sm font-bold text-amber-400 flex items-center space-x-1.5 mt-1">
+                            <i class="fa-solid fa-masks-theater"></i>
+                            <span>演劇形態 (Stagecraft)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA Buttons -->
+                <div class="flex flex-wrap gap-4 pt-4 justify-center lg:justify-start">
+                    <a href="#skills" class="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-red-600 text-black font-bold text-sm hover:brightness-110 transition-all shadow-lg shadow-amber-500/20 flex items-center space-x-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>探索雙模態機制</span>
+                    </a>
+                    <a href="#build" class="px-6 py-3 rounded-xl glass-panel hover:bg-white/10 text-white font-medium text-sm transition-all border border-white/15 flex items-center space-x-2">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>推薦聲骸與專武</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Visual Character Showcase with Detailed Illustration -->
+            <div class="lg:col-span-6 flex justify-center relative">
+                <div class="relative w-full max-w-lg aspect-[4/5] rounded-3xl overflow-hidden glass-panel border border-amber-500/30 flex items-center justify-center p-4 shadow-2xl animate-float">
+                    <!-- Background Visual Halo -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-amber-950/20"></div>
+
+                    <!-- SVG Full Character Artwork Render -->
+                    <div id="characterCardVisual" class="relative z-10 w-full h-full flex flex-col items-center justify-between p-4 text-center transition-all duration-700">
+                        
+                        <!-- Top Floating Element Tag -->
+                        <div class="w-full flex justify-between items-center text-xs font-tech text-amber-400/80 px-2">
+                            <span>RESONATOR ARCHIVE #033</span>
+                            <span class="flex items-center space-x-1"><i class="fa-solid fa-circle text-[8px] text-red-500"></i> LIVE PREVIEW</span>
+                        </div>
+
+                        <!-- Stylized SVG Character Representation (Denia Illustration) -->
+                        <div class="relative w-full h-72 my-auto flex items-center justify-center">
+                            
+                            <!-- Rotating Tech Ring -->
+                            <svg class="absolute w-64 h-64 animate-spin-slow opacity-40 text-amber-400" viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="6, 4" />
+                                <circle cx="50" cy="50" r="38" fill="none" stroke="currentColor" stroke-width="0.5" />
+                            </svg>
+
+                            <!-- Denia Character Canvas Illustration -->
+                            <svg id="deniaSvgArt" class="w-60 h-60 relative z-10 filter drop-shadow-[0_10px_20px_rgba(245,158,11,0.4)] transition-all duration-700" viewBox="0 0 200 200">
+                                <!-- Background Aura -->
+                                <defs>
+                                    <radialGradient id="deniaAura" cx="50%" cy="50%" r="50%">
+                                        <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.6"/>
+                                        <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+                                    </radialGradient>
+                                    <linearGradient id="rectifierGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#fbbf24"/>
+                                        <stop offset="100%" stop-color="#dc2626"/>
+                                    </linearGradient>
+                                </defs>
+
+                                <circle cx="100" cy="100" r="80" fill="url(#deniaAura)" />
+
+                                <!-- Floating Rectifier Instrument (Weapon Orbit) -->
+                                <g class="animate-pulse">
+                                    <polygon points="100,20 110,35 90,35" fill="url(#rectifierGlow)"/>
+                                    <polygon points="100,180 110,165 90,165" fill="url(#rectifierGlow)"/>
+                                    <polygon points="20,100 35,110 35,90" fill="url(#rectifierGlow)"/>
+                                    <polygon points="180,100 165,110 165,90" fill="url(#rectifierGlow)"/>
+                                    <circle cx="100" cy="100" r="65" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="12, 6"/>
+                                </g>
+
+                                <!-- Stylized Character Body Silhouette & Details -->
+                                <!-- Long Flowing Hair/Cape -->
+                                <path d="M70,75 Q50,110 45,150 Q75,130 100,160 Q125,130 155,150 Q150,110 130,75 Z" fill="#1e1320" stroke="#f59e0b" stroke-width="1"/>
+                                
+                                <!-- Head & Face Contour -->
+                                <circle cx="100" cy="70" r="22" fill="#fde047" opacity="0.9"/>
+                                <path d="M85,60 Q100,50 115,60 Q120,80 100,92 Q80,80 85,60 Z" fill="#2d1a29"/>
+                                
+                                <!-- Stagecraft Eye Mask / Blindfold (Interactive Element) -->
+                                <rect id="svgMask" x="85" y="65" width="30" height="8" rx="4" fill="#f59e0b" class="transition-all duration-500"/>
+
+                                <!-- Gentle Smile Line -->
+                                <path d="M94,82 Q100,86 106,82" fill="none" stroke="#fef08a" stroke-width="1.5" stroke-linecap="round"/>
+
+                                <!-- Startorch Academy Uniform Collar & Core Crystal -->
+                                <polygon points="100,95 112,115 88,115" fill="#3b0764"/>
+                                <polygon points="100,100 106,110 94,110" fill="#ef4444"/>
+                                
+                                <!-- Void Core Orbs -->
+                                <circle cx="65" cy="90" r="6" fill="#f59e0b" class="animate-bounce" style="animation-delay: 0.1s;"/>
+                                <circle cx="135" cy="90" r="6" fill="#ef4444" class="animate-bounce" style="animation-delay: 0.3s;"/>
+                            </svg>
+                        </div>
+
+                        <!-- Lower Visual Info Banner -->
+                        <div class="w-full space-y-2 bg-black/60 backdrop-blur-md p-3 rounded-2xl border border-white/10">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-400">聲優 CV</span>
+                                <span class="text-amber-300 font-bold">花澤香菜 (日語) / 祈祈 (中語)</span>
+                            </div>
+                            <div id="formDescription" class="text-xs text-slate-300 text-left bg-white/5 p-2 rounded-lg border border-white/5">
+                                【演劇形態】：累積【虛粒】，生成牽引【暗核】，為全隊積蓄熱熔與諧律爆發能量。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Profile & Lore Section -->
+    <section id="profile" class="py-16 px-4 max-w-7xl mx-auto relative z-10">
+        <div class="text-center mb-12">
+            <h2 class="text-xs font-tech text-amber-400 tracking-widest uppercase">CHARACTER PROFILE</h2>
+            <p class="text-3xl font-black text-white mt-1">共鳴者檔案與背景</p>
+            <div class="w-12 h-1 bg-amber-500 mx-auto mt-3 rounded-full"></div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Profile Specs -->
+            <div class="lg:col-span-5 glass-panel p-6 rounded-2xl border border-white/10 space-y-4">
+                <h3 class="text-lg font-bold text-amber-400 flex items-center space-x-2">
+                    <i class="fa-solid fa-address-card"></i>
+                    <span>共鳴者詳細檔案</span>
+                </h3>
+                <ul class="space-y-3 text-sm text-slate-300">
+                    <li class="flex justify-between border-b border-white/5 pb-2">
+                        <span class="text-slate-400">全名</span>
+                        <span class="font-medium text-white">達妮婭 (Denia)</span>
+                    </li>
+                    <li class="flex justify-between border-b border-white/5 pb-2">
+                        <span class="text-slate-400">所屬機構</span>
+                        <span class="font-medium text-amber-300">星炬學院 · 虛質科學部</span>
+                    </li>
+                    <li class="flex justify-between border-b border-white/5 pb-2">
+                        <span class="text-slate-400">親密好友</span>
+                        <span class="font-medium text-white">西格莉卡 (Sigrika)</span>
+                    </li>
+                    <li class="flex justify-between border-b border-white/5 pb-2">
+                        <span class="text-slate-400">共鳴類型</span>
+                        <span class="font-medium text-red-400 font-tech">先天型 (Congenital)</span>
+                    </li>
+                    <li class="flex justify-between border-b border-white/5 pb-2">
+                        <span class="text-slate-400">戰鬥模式</span>
+                        <span class="font-medium text-amber-400">熱熔聚爆 / 集諧·偏移</span>
+                    </li>
+                    <li class="flex justify-between">
+                        <span class="text-slate-400">性格特質</span>
+                        <span class="font-medium text-slate-300">懶散摸魚、看似溫柔、關鍵時刻極致果斷</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Lore Narrative -->
+            <div class="lg:col-span-7 glass-panel p-6 rounded-2xl border border-white/10 space-y-4 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-lg font-bold text-amber-400 flex items-center space-x-2 mb-3">
+                        <i class="fa-solid fa-book-open"></i>
+                        <span>故事背景：摸魚研究員的秘密</span>
+                    </h3>
+                    <p class="text-sm text-slate-300 leading-relaxed mb-3">
+                        作為星炬學院虛質科學部著名的「優等摸魚生」，達妮婭永遠能找到最舒適的角落打瞌睡。無論是學科討論會還是嚴肅的理論研討，她總是用那招牌式的「溫柔微笑」應對一切，隨後默默戴上眼罩補眠。
+                    </p>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        然而，當虛質危機爆發或戰場需要諧律介入時，達妮婭手中的音感儀能精準操控「虛粒」與「暗核」，將暴力的熱熔能量轉化為如歌劇般精密的粒子演出。好友西格莉卡常常對她又無奈又佩服。
+                    </p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 italic flex items-center space-x-3">
+                    <i class="fa-solid fa-quote-left text-2xl text-amber-400/50"></i>
+                    <span>「再優秀的共鳴演算，如果不能換來三小時安穩的午睡，那也太不划算了吧？」</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills and Dual-Form Mechanics Section -->
+    <section id="skills" class="py-16 px-4 max-w-7xl mx-auto relative z-10">
+        <div class="text-center mb-12">
+            <h2 class="text-xs font-tech text-amber-400 tracking-widest uppercase">KIT & RESONANCE MODES</h2>
+            <p class="text-3xl font-black text-white mt-1">雙模態機制與技能解析</p>
+            <div class="w-12 h-1 bg-amber-500 mx-auto mt-3 rounded-full"></div>
+        </div>
+
+        <!-- Mode Mechanics Explanatory Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <!-- Stagecraft Form -->
+            <div id="cardStagecraft" class="glass-panel p-6 rounded-2xl border border-amber-500/40 relative overflow-hidden transition-all">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="p-3 rounded-xl bg-amber-500/20 text-amber-400 text-xl">
+                        <i class="fa-solid fa-masks-theater"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">演劇形態 (Stagecraft Form)</h3>
+                        <span class="text-xs text-amber-400 font-tech">聚怪與資源蓄積階段</span>
+                    </div>
+                </div>
+                <div class="space-y-3 text-sm text-slate-300">
+                    <div class="p-3 rounded-lg bg-black/40 border border-white/5">
+                        <span class="text-xs font-bold text-amber-300 block mb-1">【虛粒 (Void Particle)】</span>
+                        <p class="text-xs text-slate-400">上限 100 點。演劇形態下普攻與變奏技能命中即可獲取，滿額時可觸發強效聚怪力場。</p>
+                    </div>
+                    <div class="p-3 rounded-lg bg-black/40 border border-white/5">
+                        <span class="text-xs font-bold text-amber-300 block mb-1">【暗核 (Dark Core)】</span>
+                        <p class="text-xs text-slate-400">最多儲存 3 個。每12秒或施放登場技能時生成1個，持續吸引周圍目標並進行熱熔微頻共振。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Breakdown Form -->
+            <div id="cardBreakdown" class="glass-panel p-6 rounded-2xl border border-white/10 relative overflow-hidden transition-all opacity-80">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="p-3 rounded-xl bg-red-500/20 text-red-400 text-xl">
+                        <i class="fa-solid fa-volcano"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">瓦解形態 (Breakdown Form)</h3>
+                        <span class="text-xs text-red-400 font-tech">爆發與同型電荷階段</span>
+                    </div>
+                </div>
+                <div class="space-y-3 text-sm text-slate-300">
+                    <div class="p-3 rounded-lg bg-black/40 border border-white/5">
+                        <span class="text-xs font-bold text-red-400 block mb-1">【同型電荷 (Conformal Charge)】</span>
+                        <p class="text-xs text-slate-400">上限 100 點。瓦解形態下普攻與技能「驅逐」獲得，消耗電荷可釋放高額熱熔無視防禦傷害。</p>
+                    </div>
+                    <div class="p-3 rounded-lg bg-black/40 border border-white/5">
+                        <span class="text-xs font-bold text-red-400 block mb-1">【暗核引爆 (Core Collapse)】</span>
+                        <p class="text-xs text-slate-400">消耗暗核直接將場上力場轉化為瞬發熱熔核爆，大幅提升共鳴解放【終幕】的傷害倍率。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Skill Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Normal Attack -->
+            <div class="glass-panel p-5 rounded-2xl border border-white/10 space-y-3 hover:border-amber-500/40 transition-all">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-amber-400 uppercase font-tech">常規攻擊</span>
+                    <i class="fa-solid fa-hand-sparkles text-slate-400"></i>
+                </div>
+                <h4 class="text-lg font-bold text-white">虛質織影</h4>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    進行最多4段的連續音感儀攻擊造成熱熔傷害。重擊時發射「虛粒飛彈」，對目標施加【同型電荷】標記。
+                </p>
+                <div class="pt-2 text-[11px] text-slate-400 border-t border-white/5 flex justify-between">
+                    <span>1段/2段/3段/4段</span>
+                    <span class="text-amber-300 font-tech">16.4% / 30.3% / 38.4% / 64.3%</span>
+                </div>
+            </div>
+
+            <!-- Resonance Skill -->
+            <div class="glass-panel p-5 rounded-2xl border border-white/10 space-y-3 hover:border-amber-500/40 transition-all">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-amber-400 uppercase font-tech">共鳴技能</span>
+                    <i class="fa-solid fa-atom text-slate-400"></i>
+                </div>
+                <h4 class="text-lg font-bold text-white">幻影泡沫 / 驅逐 (Banish)</h4>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    演劇形態下釋放【幻影泡沫】生成暗核；瓦解形態下轉化為【驅逐】，進行兩段熱熔轟炸，並生成40點同型電荷。
+                </p>
+                <div class="pt-2 text-[11px] text-slate-400 border-t border-white/5 flex justify-between">
+                    <span>驅逐 Stage 1/2 傷害</span>
+                    <span class="text-amber-300 font-tech">52.3% + 56.3%</span>
+                </div>
+            </div>
+
+            <!-- Resonance Liberation -->
+            <div class="glass-panel p-5 rounded-2xl border border-red-500/30 space-y-3 bg-gradient-to-b from-red-950/20 to-transparent">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-red-400 uppercase font-tech">共鳴解放 (必殺技)</span>
+                    <i class="fa-solid fa-burst text-red-400"></i>
+                </div>
+                <h4 class="text-lg font-bold text-white">終幕：虛質崩滅 (Final Act)</h4>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    達妮婭摘下眼罩，引爆範圍內所有暗核與虛質能量，造成巨額熱熔傷害（傷害占比高達 88.4%），並為全隊提供熱熔加成。
+                </p>
+                <div class="pt-2 text-[11px] text-slate-400 border-t border-white/5 flex justify-between">
+                    <span>技能傷害占比 (Rotation)</span>
+                    <span class="text-red-400 font-bold font-tech">88.48% Peak DMG</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Build, Weapons & Echoes Section -->
+    <section id="build" class="py-16 px-4 max-w-7xl mx-auto relative z-10">
+        <div class="text-center mb-12">
+            <h2 class="text-xs font-tech text-amber-400 tracking-widest uppercase">WEAPONS & ECHOES</h2>
+            <p class="text-3xl font-black text-white mt-1">裝備與聲骸搭配指南</p>
+            <div class="w-12 h-1 bg-amber-500 mx-auto mt-3 rounded-full"></div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Weapons Column -->
+            <div class="lg:col-span-6 space-y-6">
+                <h3 class="text-xl font-bold text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-wand-sparkles text-amber-400"></i>
+                    <span>武器推薦 (Weapons Rank)</span>
+                </h3>
+
+                <!-- Signature Weapon Card -->
+                <div class="glass-panel p-5 rounded-2xl border border-amber-500/40 relative overflow-hidden flex items-center space-x-4">
+                    <div class="w-16 h-16 rounded-xl bg-gradient-to-tr from-amber-500/30 to-red-600/30 border border-amber-400 flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-star text-2xl text-amber-400"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-bold text-amber-300">鍛造矮星 (Forged Dwarf Star)</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">5★ 專屬音感儀</span>
+                        </div>
+                        <p class="text-xs text-slate-300">
+                            暴擊率提升；附加聚爆效應或集諧·偏移後，共鳴解放傷害加成提升72%，全隊攻擊提升48%。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Secondary Weapons -->
+                <div class="space-y-3">
+                    <div class="glass-panel p-4 rounded-xl border border-white/10 flex justify-between items-center">
+                        <div>
+                            <span class="text-sm font-bold text-white block">吟霖手記 (Stringmaster)</span>
+                            <span class="text-xs text-slate-400">5★ 汎用音感儀 | 高額暴擊率與全屬性傷害加成</span>
+                        </div>
+                        <span class="text-xs font-bold text-amber-400">次選替代</span>
+                    </div>
+
+                    <div class="glass-panel p-4 rounded-xl border border-white/10 flex justify-between items-center">
+                        <div>
+                            <span class="text-sm font-bold text-white block">Augment / 奇幻樂章</span>
+                            <span class="text-xs text-slate-400">4★ 大月卡 / 大通通用武器 | 大幅提升共鳴效率與能量恢復</span>
+                        </div>
+                        <span class="text-xs font-bold text-slate-400">4星優選</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Echo Sets Column -->
+            <div class="lg:col-span-6 space-y-6">
+                <h3 class="text-xl font-bold text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-ghost text-red-400"></i>
+                    <span>聲骸套裝推薦 (Echo Sets)</span>
+                </h3>
+
+                <!-- Echo Set 1: Fusion Burst -->
+                <div class="glass-panel p-5 rounded-2xl border border-amber-500/30 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-bold text-amber-300">熱熔聚爆流：斑駁粉飾之沫 (Chromatic Foam) 5件套</span>
+                        <span class="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">主主流推薦</span>
+                    </div>
+                    <p class="text-xs text-slate-300">
+                        提升熱熔傷害；觸發聚爆效應時大幅提高共鳴解放與大招爆發傷害。
+                    </p>
+                    <div class="p-3 rounded-xl bg-black/40 border border-white/5 flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center text-red-400 font-bold text-lg">
+                            <i class="fa-solid fa-paw"></i>
+                        </div>
+                        <div class="text-xs">
+                            <span class="text-slate-400 block">首位主聲骸 (Main Echo)</span>
+                            <span class="font-bold text-white">榮光獅雌 (Lioness of Glory)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Echo Set 2: Tune Strain -->
+                <div class="glass-panel p-5 rounded-2xl border border-white/10 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-bold text-white">集諧諧度流：剪心輯梦之影 (Reel of Spliced Memories) 5件套</span>
+                        <span class="text-xs px-2 py-0.5 rounded bg-slate-500/20 text-slate-300">諧度特化</span>
+                    </div>
+                    <p class="text-xs text-slate-300">
+                        提升集諧·偏移能力與團隊諧度破壞效率，適合搭配路克·赫森等集諧隊伍。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stat Priority Cards -->
+        <div class="mt-8 glass-panel p-6 rounded-2xl border border-white/10 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <span class="text-xs text-amber-400 font-tech font-bold block mb-1">主詞條 (4-3-3-1-1)</span>
+                <p class="text-xs text-slate-300">4 Cost: 暴擊率 / 暴擊傷害<br>3 Cost: 熱熔傷害加成 x2<br>1 Cost: 百分比攻擊力 x2</p>
+            </div>
+            <div>
+                <span class="text-xs text-amber-400 font-tech font-bold block mb-1">副詞條優先級</span>
+                <p class="text-xs text-slate-300">暴擊率 / 暴擊傷害 &gt; 共鳴效率 (建議125%-130%) &gt; 共鳴解放傷害 &gt; 百分比攻擊</p>
+            </div>
+            <div>
+                <span class="text-xs text-amber-400 font-tech font-bold block mb-1">畢業屬性目標</span>
+                <p class="text-xs text-slate-300">暴擊率: 70%+ | 暴擊傷害: 240%+<br>共鳴效率: 130% | 攻擊力: 2100+</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sequences (Resonance Chains) Section -->
+    <section id="sequences" class="py-16 px-4 max-w-7xl mx-auto relative z-10">
+        <div class="text-center mb-12">
+            <h2 class="text-xs font-tech text-amber-400 tracking-widest uppercase">RESONANCE CHAINS</h2>
+            <p class="text-3xl font-black text-white mt-1">共鳴鏈 ( S1 ~ S6 ) 突破提升</p>
+            <div class="w-12 h-1 bg-amber-500 mx-auto mt-3 rounded-full"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- S1 -->
+            <div class="glass-panel p-5 rounded-2xl border border-white/10 space-y-2 hover:border-amber-500/40 transition-all">
+                <div class="flex justify-between items-center">
+                    <span class="font-tech text-amber-400 font-bold">S1. 昏暗夢境中的微光</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded bg-white/10 text-slate-300">抗打擾/暴傷</span>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    暴擊傷害提升30%。施放技能與普攻段數時獲得霸體抗打斷效果；進入戰場時自動獲取「熵移」效果。
+                </p>
+            </div>
+
+            <!-- S2 (Key Node) -->
+            <div class="glass-panel p-5 rounded-2xl border border-amber-500/50 bg-gradient-to-b from-amber-950/20 to-transparent space-y-2">
+                <div class="flex justify-between items-center">
+                    <span class="font-tech text-amber-300 font-bold">S2. 現實浪潮中的沉浮</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">關鍵爆發鏈</span>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    隊友引發熱熔聚爆後，全隊獲得50%熱熔傷害加成。達妮婭疊加「退化虛質」，每層無視1%熱熔抗性；驅逐技能傷害提升40%。
+                </p>
+            </div>
+
+            <!-- S3 -->
+            <div class="glass-panel p-5 rounded-2xl border border-white/10 space-y-2">
+                <div class="flex justify-between items-center">
+                    <span class="font-tech text-amber-400 font-bold">S3. 虛質的繁複計算</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded bg-white/10 text-slate-300">數值提升</span>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    共鳴技能與共鳴解放傷害倍率提升。
+                </p>
+            </div>
+
+            <!-- S4 -->
+            <div class="glass-panel p-5 rounded-2xl border border-white/10 space-y-2">
+                <div class="flex justify-between items-center">
+                    <span class="font-tech text-amber-400 font-bold">S4. 學院特許的特權</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded bg-white/10 text-slate-300">協奏輔助</span>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    共鳴解放【終幕】段數增加，退場時使登場角色獲得額外熱熔傷害加成。
+                </p>
+            </div>
+
+            <!-- S5 -->
+            <div class="glass-panel p-5 rounded-2xl border border-white/10 space-y-2">
+                <div class="flex justify-between items-center">
+                    <span class="font-tech text-amber-400 font-bold">S5. 預演中的即興劇</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded bg-white/10 text-slate-300">技能等級</span>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    常規攻擊與變奏技能等級+2。
+                </p>
+            </div>
+
+            <!-- S6 -->
+            <div class="glass-panel p-5 rounded-2xl border border-red-500/50 bg-gradient-to-b from-red-950/30 to-transparent space-y-2">
+                <div class="flex justify-between items-center">
+                    <span class="font-tech text-red-400 font-bold">S6. 終幕的無聲宣告</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded bg-red-500/20 text-red-300 font-bold">質變滿鏈</span>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    瓦解形態下所有熱熔攻擊無視目標 30% 防禦力，施放必殺技後刷新共鳴技能CD，實現無縫連招爆發。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Compositions Section -->
+    <section id="teams" class="py-16 px-4 max-w-7xl mx-auto relative z-10 mb-12">
+        <div class="text-center mb-12">
+            <h2 class="text-xs font-tech text-amber-400 tracking-widest uppercase">TEAM COMPOSITIONS</h2>
+            <p class="text-3xl font-black text-white mt-1">推薦隊伍搭配</p>
+            <div class="w-12 h-1 bg-amber-500 mx-auto mt-3 rounded-full"></div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Fusion Burst Team -->
+            <div class="glass-panel p-6 rounded-2xl border border-amber-500/30 space-y-4">
+                <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                    <h3 class="text-lg font-bold text-white">聚爆熱熔隊</h3>
+                    <span class="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-tech">極致聚爆輸出</span>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="p-2.5 rounded-xl bg-black/40 border border-amber-500/40 flex items-center justify-between">
+                        <span class="font-bold text-amber-300 text-sm">達妮婭 (Denia)</span>
+                        <span class="text-xs text-slate-400">聚爆副C / 大招核爆</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-black/40 border border-white/10 flex items-center justify-between">
+                        <span class="font-bold text-white text-sm">艾梅斯 (Aemeath)</span>
+                        <span class="text-xs text-slate-400">熱熔主C / 聚爆發動</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-black/40 border border-white/10 flex items-center justify-between">
+                        <span class="font-bold text-white text-sm">千砂 (Chisa)</span>
+                        <span class="text-xs text-slate-400">護盾 / 熱熔協奏增傷</span>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-300">
+                    由艾梅斯進行熱熔聚爆發動，完美觸發達妮婭S2及專武的48%攻擊加成，瞬間將戰場轉化為熱熔火海。
+                </p>
+            </div>
+
+            <!-- Tune Strain Team -->
+            <div class="glass-panel p-6 rounded-2xl border border-white/10 space-y-4">
+                <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                    <h3 class="text-lg font-bold text-white">集諧諧度隊</h3>
+                    <span class="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-tech">諧度破壞特化</span>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="p-2.5 rounded-xl bg-black/40 border border-amber-500/40 flex items-center justify-between">
+                        <span class="font-bold text-amber-300 text-sm">達妮婭 (Denia)</span>
+                        <span class="text-xs text-slate-400">集諧·偏移 / 控場</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-black/40 border border-white/10 flex items-center justify-between">
+                        <span class="font-bold text-white text-sm">路克·赫森 / 莉妮亞</span>
+                        <span class="text-xs text-slate-400">諧度破壞主C</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-black/40 border border-white/10 flex items-center justify-between">
+                        <span class="font-bold text-white text-sm">摩霓 (Mornye)</span>
+                        <span class="text-xs text-slate-400">集諧輔助 / 治療</span>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-300">
+                    在【集諧】模態下，達妮婭能顯著提升目標的失諧層數，讓隊友打出極高額的諧度破壞傷害。
+                </p>
+            </div>
+
+            <!-- F2P General Team -->
+            <div class="glass-panel p-6 rounded-2xl border border-white/10 space-y-4">
+                <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                    <h3 class="text-lg font-bold text-white">通用平民隊</h3>
+                    <span class="text-xs px-2 py-0.5 rounded bg-slate-500/20 text-slate-300 font-tech">開荒速切</span>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="p-2.5 rounded-xl bg-black/40 border border-amber-500/40 flex items-center justify-between">
+                        <span class="font-bold text-amber-300 text-sm">達妮婭 (Denia)</span>
+                        <span class="text-xs text-slate-400">速切爆發 / 暗核牽引</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-black/40 border border-white/10 flex items-center justify-between">
+                        <span class="font-bold text-white text-sm">秧秧 / 鑑心</span>
+                        <span class="text-xs text-slate-400">聚怪 / 共鳴充能</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-black/40 border border-white/10 flex items-center justify-between">
+                        <span class="font-bold text-white text-sm">維里奈 (Verina)</span>
+                        <span class="text-xs text-slate-400">通用增傷 / 治療</span>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-300">
+                    適合新手或資源有限的玩家，達妮婭負責暗核聚怪與大招清場，維里奈與秧秧保障能量與循環。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="glass-panel border-t border-white/10 py-8 px-4 text-center text-xs text-slate-500 relative z-10">
+        <div class="max-w-7xl mx-auto space-y-2">
+            <p>© 《鳴潮》(Wuthering Waves) Fan-made Profile Page | 達妮婭 (Denia) 5★ 熱熔共鳴者展示</p>
+            <p class="text-[10px] text-slate-600">本頁面為玩家同人創作，所有遊戲相關名稱、圖示及著作權均歸 KURO GAMES (庫洛遊戲) 所有。</p>
+        </div>
+    </footer>
+
+    <script>
+        let isBreakdownForm = false;
+        let particleColor = 'amber';
+
+        function toggleForm() {
+            isBreakdownForm = !isBreakdownForm;
+            const body = document.body;
+            const slider = document.getElementById('toggleSlider');
+            const btnTextStage = document.getElementById('btnTextStage');
+            const btnTextBreak = document.getElementById('btnTextBreak');
+            const slogan = document.getElementById('sloganText');
+            const formBadge = document.getElementById('heroFormBadge');
+            const formDesc = document.getElementById('formDescription');
+            const heroGlow = document.getElementById('heroGlow');
+            const cardStagecraft = document.getElementById('cardStagecraft');
+            const cardBreakdown = document.getElementById('cardBreakdown');
+            const svgMask = document.getElementById('svgMask');
+
+            if (isBreakdownForm) {
+                // Breakdown Mode (Red / Fusion Burst)
+                body.classList.remove('form-stagecraft');
+                body.classList.add('form-breakdown');
+                slider.style.transform = 'translateX(4.5rem)';
+                slider.className = 'absolute left-1 w-18 h-7 bg-gradient-to-r from-red-600 to-red-500 rounded-full transition-transform duration-500 ease-out shadow-md';
+                btnTextStage.classList.replace('text-black', 'text-slate-400');
+                btnTextBreak.classList.replace('text-slate-400', 'text-black');
+
+                slogan.innerText = "「摘下眼罩的瞬間，暗核連鎖引爆，同型電荷將戰場完全瓦解。」";
+                slogan.className = "text-base sm:text-lg text-slate-300 font-light border-l-2 border-red-500 pl-4 py-2 italic bg-white/5 rounded-r";
+                
+                formBadge.innerHTML = '<i class="fa-solid fa-volcano"></i><span>瓦解形態 (Breakdown)</span>';
+                formBadge.className = "text-sm font-bold text-red-500 flex items-center space-x-1.5 mt-1";
+
+                formDesc.innerText = "【瓦解形態】：消耗同型電荷引爆暗核，所有熱熔技能附帶無視防禦效果，解放【終幕】造成巔峰核爆。";
+                heroGlow.className = "absolute w-[650px] h-[650px] rounded-full bg-red-600/20 blur-[140px] pointer-events-none transition-all duration-700";
+                
+                cardStagecraft.classList.add('opacity-80');
+                cardStagecraft.classList.remove('border-amber-500/40');
+                cardBreakdown.classList.remove('opacity-80');
+                cardBreakdown.classList.add('border-red-500/40');
+
+                if (svgMask) {
+                    svgMask.setAttribute('fill', '#ef4444');
+                    svgMask.setAttribute('transform', 'translate(0, -5)');
+                }
+
+                particleColor = 'crimson';
+            } else {
+                // Stagecraft Mode (Amber / Void Particles)
+                body.classList.remove('form-breakdown');
+                body.classList.add('form-stagecraft');
+                slider.style.transform = 'translateX(0px)';
+                slider.className = 'absolute left-1 w-18 h-7 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full transition-transform duration-500 ease-out shadow-md';
+                btnTextStage.classList.replace('text-slate-400', 'text-black');
+                btnTextBreak.classList.replace('text-black', 'text-slate-400');
+
+                slogan.innerText = "「星炬學院虛質科學部學生。終日懶散摸魚打瞌睡，卻能精準操控虛質與熱熔的聚爆天才。」";
+                slogan.className = "text-base sm:text-lg text-slate-300 font-light border-l-2 border-amber-500 pl-4 py-2 italic bg-white/5 rounded-r";
+                
+                formBadge.innerHTML = '<i class="fa-solid fa-masks-theater"></i><span>演劇形態 (Stagecraft)</span>';
+                formBadge.className = "text-sm font-bold text-amber-400 flex items-center space-x-1.5 mt-1";
+
+                formDesc.innerText = "【演劇形態】：累積【虛粒】，生成牽引【暗核】，為全隊積蓄熱熔與諧律爆發能量。";
+                heroGlow.className = "absolute w-[650px] h-[650px] rounded-full bg-amber-500/15 blur-[140px] pointer-events-none transition-all duration-700";
+
+                cardBreakdown.classList.add('opacity-80');
+                cardBreakdown.classList.remove('border-red-500/40');
+                cardStagecraft.classList.remove('opacity-80');
+                cardStagecraft.classList.add('border-amber-500/40');
+
+                if (svgMask) {
+                    svgMask.setAttribute('fill', '#f59e0b');
+                    svgMask.setAttribute('transform', 'translate(0, 0)');
+                }
+
+                particleColor = 'amber';
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Particle Canvas Logic
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + Math.random() * 100;
+                this.size = Math.random() * 2.5 + 0.5;
+                this.speedY = Math.random() * 1.2 + 0.4;
+                this.speedX = (Math.random() - 0.5) * 0.6;
+                this.opacity = Math.random() * 0.7 + 0.2;
+            }
+
+            update() {
+                this.y -= this.speedY;
+                this.x += this.speedX;
+                if (this.y < -10) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                if (particleColor === 'amber') {
+                    ctx.fillStyle = `rgba(251, 191, 36, ${this.opacity})`;
+                } else {
+                    ctx.fillStyle = `rgba(239, 68, 68, ${this.opacity})`;
+                }
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 70; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+
+        window.onload = function() {
+            animateParticles();
+        }
+    </script>
+</body>
+</html>
